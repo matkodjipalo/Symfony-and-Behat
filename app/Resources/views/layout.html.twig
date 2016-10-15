@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}ToDo Lists{% endblock %}</title>
+
+    {% block stylesheets %}
+        <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/css/main.css" />
+        <link rel="stylesheet" href="/css/font-awesome.min.css" />
+    {% endblock %}
+    {% block javascripts %}
+        <script type="text/javascript" src="/js/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="/bootstrap/js/bootstrap.min.js"></script>
+    {% endblock %}
+</head>
+<body>
+
+<div class="container">
+    <div class="header clearfix">
+        <nav class="navigation-margin">
+            <ul class="nav nav-pills pull-right">
+                <li>
+                    <a href="{{ path('homepage') }}">Home</a>
+                </li>
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <li><a href="{{ logout_path('main') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ path('login') }}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+        <h1>Dashboard</h1>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-sm-12">
+            {% if app.session.flashBag.has('success') %}
+                <div class="alert alert-success">
+                    {% for msg in app.session.flashBag.get('success') %}
+                    {{ msg }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+</div>
+<footer class="footer footer-styling">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <ul class="nav pull-right footer-nav">
+                    <h1 class="knpu"><a href="http://todolist.com">todolist.com</a></h1>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div id="modal-content-holder" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body clearfix"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

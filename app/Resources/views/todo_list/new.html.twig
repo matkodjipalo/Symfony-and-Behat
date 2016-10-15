@@ -1,0 +1,47 @@
+{% extends 'layout.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/css/bootstrap-datepicker.css">
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>New ToDo List</h1>
+                {{ form_start(toDoListForm) }}
+                <div class="form-group">
+                    {{ form_label(toDoListForm.name, 'Name') }}
+                    {{ form_widget(toDoListForm.name, {'attr': {'class': 'form-control'}}) }}
+                </div>
+                <h3>Tasks</h3>
+                <ul class="tasks" data-prototype="{{ form_widget(toDoListForm.tasks.vars.prototype)|e('html_attr') }}">
+                    {# iterate over each existing tag and render its only field: name #}
+                    {% for task in toDoListForm.tasks %}
+                        <div class="single_task">
+                            <li>{{ form_row(task.name) }}</li>
+                            <li>{{ form_row(task.priority) }}</li>
+                            <li>{{ form_row(task.deadlineDt) }}</li>
+                        </div>
+                    {% endfor %}
+                </ul>
+                <button type="submit" class="btn btn-primary">Save</button>
+                {{ form_end(toDoListForm) }}
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $('body').on('focus', '.js-datepicker', function() {
+            $('.js-datepicker').datepicker({
+                format: 'yyyy-mm-dd'
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="/js/form/dynamically_task_handling.js"></script>
+{% endblock %}

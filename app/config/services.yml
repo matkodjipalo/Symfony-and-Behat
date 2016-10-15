@@ -1,0 +1,58 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/book/service_container.html
+parameters:
+#    parameter_name: value
+
+services:
+    schema_manager:
+        class: AppBundle\Doctrine\SchemaManager
+        arguments: ['@doctrine.orm.entity_manager', '@service_container']
+
+    user_repository:
+        class: AppBundle\Entity\UserRepository
+        factory: ['@doctrine.orm.entity_manager', getRepository]
+        arguments: [AppBundle:User]
+
+    doctrine.user_password_encoder_listener:
+        class: AppBundle\Doctrine\UserPasswordEncoderListener
+        arguments: ['@security.user_password_encoder.generic']
+        tags:
+            - { name: doctrine.event_listener, event: prePersist }
+
+    registration_form_handler:
+        class: AppBundle\Form\Handler\RegistrationFormHandler
+        arguments: ['@user_manager']
+
+    todo_list_form_handler:
+        class: AppBundle\Form\Handler\ToDoListFormHandler
+        arguments: ['@todo_list_manager']
+
+    user_manager:
+        class: AppBundle\DomainManager\UserManager
+        arguments: ['@doctrine.orm.default_entity_manager', '@event_dispatcher']
+
+    todo_list_manager:
+        class: AppBundle\DomainManager\ToDoListManager
+        arguments: ['@doctrine.orm.default_entity_manager']
+
+    send_user_confirmation_mail_listener:
+        class: AppBundle\EventListener\SendConfirmationMailListener
+        arguments: ['@mailer', '@router', '@twig']
+        tags:
+            - { name: kernel.event_subscriber }
+
+    create_confirmation_code_listener:
+        class: AppBundle\EventSubscriber\CreateConfirmationCodeEventSubscriber
+        tags:
+            - { name: doctrine.event_subscriber }
+
+    app.twig_extension:
+        class: AppBundle\Twig\AppExtension
+        public: false
+        tags:
+            - { name: twig.extension }
+
+    twig.extension.date:
+       class: Twig_Extensions_Extension_Date
+       tags:
+            - { name: twig.extension }

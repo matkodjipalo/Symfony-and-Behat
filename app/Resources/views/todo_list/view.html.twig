@@ -1,0 +1,72 @@
+{% extends 'layout.html.twig' %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+<section>
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</a>
+                        <th>Created</th>
+                        <th>Total tasks</th>
+                        <th>Uncompleted tasks</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                	{% set uncompleted = toDoList.tasks|uncompletedTask|length %}
+                	{% set total = toDoList.tasks|length %}
+				    <tr>
+				        <td>{{ toDoList.name }}</td>
+				        <td>{{ toDoList.createdAt|date("m/d/Y") }}</td>
+				        <td>{{ toDoList.tasks|length }}</td>    
+				        <td>{{ toDoList.tasks|uncompletedTask|length }}</td> 
+				        <td>{{ total > 0 ? (total - uncompleted)/total * 100 : 0 }} %</td>  
+				    </tr>
+				</tbody>
+            </table>
+            <h3 class="text-left">Tasks:</h1>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="ajaxSort" name="name" data-orderingdirection="DESC"><a href="#">Name</a></th>
+                        <th class="ajaxSort" name="priority" data-orderingdirection="DESC"><a href="#">Priority</a></th>
+                        <th class="ajaxSort" name="deadlineDt" data-orderingdirection="DESC"><a href="#">Deadline</a></th>
+                        <th class="ajaxSort" name="isCompleted" data-orderingdirection="DESC"><a href="#">Status</a></th>
+                        <th>Time left</th>
+                    </tr>
+                </thead>
+                {% set tasks = toDoList.tasks %}
+                <tbody id="ajax_html_part">
+                	{% include 'task/ajax_list.html.twig' %}
+				</tbody>
+            </table>
+        </div>
+    </div>
+   {% block js %}
+        <script type="text/javascript" src="/js/form/table_action.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $(".container").on('click', '.ajaxDelete', function(e) {
+                    e.preventDefault();
+                    var currentTableHeader = $(this);
+                    var url = "{{ path('delete_task_from_todo-list', {'toDoListId': toDoList.id, 'id': "ID"})|raw }}";
+                    url = url.replace('ID', currentTableHeader.data('task-id'));
+                    ajaxDelete(url);
+                });
+                $(".ajaxSort").on('click', function(e) {
+                    e.preventDefault();
+                    var currentTableHeader = $(this);
+                    var url = "{{ path('task_list_for_todo-list', {'toDoListId': toDoList.id, 'orderBy': "NAME", 'orderDirection': "DIRECTION"})|raw }}";
+                    url = url.replace('NAME', currentTableHeader.attr('name'));
+                    url = url.replace('DIRECTION', currentTableHeader.data('orderingdirection'));
+                    ajaxSort(url, currentTableHeader);
+                });
+            });
+        </script>   
+    {% endblock %}
+</section>
+{% endblock %}

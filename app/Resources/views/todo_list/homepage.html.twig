@@ -1,0 +1,62 @@
+{% extends 'layout.html.twig' %}
+
+{% block sidebar %}{% endblock %}
+
+{% block body %}
+<section>
+    <h1 class="text-center">{{ app.user.firstName }}, welcome to the todolist.com</h1>
+
+    <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+            {% if toDoLists %}
+                <h2>Here are your lists:</h2>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            {% set currentOrderDirection = app.request.get('orderDirection') %}
+                            {% set orderDirection = currentOrderDirection == null or currentOrderDirection == "DESC" ? "ASC" : "DESC"  %}
+                            <th class="ajaxSort" name="name" data-orderingdirection="DESC"><a href="#">Name</a>
+                            <th class="ajaxSort" name="createdAt" data-orderingdirection="DESC"><a href="#">Created</a></th>
+                            <th>Total tasks</th>
+                            <th>Uncompleted tasks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ajax_html_part">
+                        {% include 'todo_list/homepage_ajax_part.html.twig' %}
+                    </tbody>
+                </table>
+                <p class="text-right">
+                    <a href="{{ path('new_todolist') }}">New ToDo List</a>
+                </p>
+            {% else %}
+                <p class="text-center">
+                    <br><br><br>
+                    Currently, you do not have any, but you can make <a href="{{ path('new_todolist') }}">New ToDo List</a>
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    {% block js %}
+        <script type="text/javascript" src="/js/form/table_action.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $(".container").on('click', '.ajaxDelete', function(e){
+                    e.preventDefault();
+                    var currentTableHeader = $(this);
+                    var url = "{{ path('delete_todolist', {id: 'ID'}) }}";
+                    url = url.replace('ID', currentTableHeader.data('todolist-id'));
+                    ajaxDelete(url);
+                });
+                $(".ajaxSort").on('click', function(e){
+                    e.preventDefault();
+                    var currentTableHeader = $(this);
+                    var url = "{{ path('homepage', {'orderBy': "NAME", 'orderDirection': "DIRECTION"})|raw }}";
+                    url = url.replace('NAME', currentTableHeader.attr('name'));
+                    url = url.replace('DIRECTION', currentTableHeader.data('orderingdirection'));
+                    ajaxSort(url, currentTableHeader);
+                });
+            });
+        </script>   
+    {% endblock %}
+</section>
+{% endblock %}
